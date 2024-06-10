@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -30,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
@@ -54,8 +56,8 @@ fun HomeScreen(navController: NavHostController) {
         color = LaoBackG
     ) {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(256.dp),
-            modifier = Modifier.fillMaxSize().padding(128.dp)
+            columns = GridCells.FixedSize(256.dp),
+            modifier = Modifier.fillMaxSize().padding(128.dp),
         )
         {
             items(installedApps) { appInfo ->
@@ -79,20 +81,23 @@ fun AppListItem(appInfo: AppInfo, packageManager: PackageManager) {
                 .padding(8.dp)
                 .clickable { expanded = true }
                 .fillMaxWidth(0.2f),
-            verticalArrangement = Arrangement.Center
-        ) {
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+
+            ) {
             Image(
                 bitmap = appInfo.icon,
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier.fillMaxWidth(0.8f).height(128.dp),
                 contentScale = ContentScale.Fit
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp).height(32.dp))
             Text(
                 text = appInfo.name,
                textAlign = TextAlign.Justify,
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth()
+
                 )
             DropdownMenu(
                 expanded = expanded,

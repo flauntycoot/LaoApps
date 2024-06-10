@@ -48,7 +48,7 @@ fun MenuItem(text: String, icon: ImageVector, onClick: () -> Unit) {
             tint = LaoGreen,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(70.dp),
+                .height(128.dp),
         )
         Text(
             text = text,
