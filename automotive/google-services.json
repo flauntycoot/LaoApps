@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "946762912343",
+    "project_id": "laoapps-aaca6",
+    "storage_bucket": "laoapps-aaca6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946762912343:android:26a5ffcfe1baf609fa8912",
+        "android_client_info": {
+          "package_name": "com.example.laoapps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaVeQMF9fqXhT_b8ox65sbMNvi-dMV21g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

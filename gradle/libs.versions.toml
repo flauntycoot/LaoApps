@@ -1,0 +1,121 @@
+[versions]
+activityComposeVersion = "1.9.0"
+agp = "7.2.0"
+androidxActivityCompose = "1.7.2"
+androidxActivityComposeVersion = "1.4.0"
+androidxCoreKtx = "1.13.1"
+androidxCoreKtxVersion = "1.7.0"
+androidxLifecycleRuntimeKtx = "2.6.1"
+androidxLifecycleRuntimeKtxVersion = "2.4.1"
+androidxMaterial = "1.1.0"
+androidxMaterialVersion = "1.3.1"
+androidxUi = "1.1.0"
+androidxUiVersion = "x.x.x"
+annotations = "23.0.0"
+annotationsVersion = "15.0"
+appcompatVersion = "1.6.1"
+coil = "n"
+coilCompose = "2.6.0"
+coilComposeVersion = "2.4.0"
+composeBomVersion = "2024.05.00"
+core = "3.5.1"
+coreKtxVersion = "1.13.1"
+kotlin = "1.9.23"
+coreKtx = "1.13.1"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+appcompat = "1.6.1"
+kotlinxSerializationJson = "1.3.3"
+lifecycleRuntimeKtxVersion = "2.8.0"
+material = "1.12.0"
+material3 = "1.0.0-alpha12"
+materialVersion = "1.6.7"
+navigationCompose = "2.7.0"
+navigationComposeVersion = "2.4.0-rc01"
+navigationRuntimeKtx = "2.7.7"
+foundationLayoutAndroid = "1.6.7"
+material3Android = "1.2.1"
+ui = "1.6.7"
+lifecycleRuntimeKtx = "2.8.0"
+activityCompose = "1.9.0"
+composeBom = "2024.05.00"
+activityKtx = "1.9.0"
+composePreviewRenderer = "0.0.1-alpha01"
+uiTestManifest = "1.6.7"
+uiTooling = "1.6.7"
+uiToolingPreview = "1.6.7"
+uiToolingPreviewVersion = "1.1.0"
+uiToolingVersion = "x.x.x"
+uiVersion = "1.5.1"
+runtimeLivedata = "1.6.7"
+volley = "1.2.1"
+googleServices = "4.4.1"
+firebaseDatabase = "21.0.0"
+
+[libraries]
+activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
+androidx-activity-compose-v140 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityComposeVersion" }
+androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
+androidx-appcompat-v140 = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
+androidx-compose-bom-v20240100 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-ktx-v1101 = { module = "androidx.core:core-ktx", version.ref = "androidxCoreKtx" }
+androidx-core-ktx-v170 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
+androidx-lifecycle-runtime-ktx-v241 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycleRuntimeKtxVersion" }
+androidx-lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
+androidx-material-v110 = { module = "androidx.compose.material:material", version.ref = "androidxMaterial" }
+androidx-material-v131 = { module = "androidx.compose.material:material", version.ref = "androidxMaterialVersion" }
+androidx-material3-v100alpha12 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationRuntimeKtx" }
+androidx-navigation-compose-v240rc01 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
+androidx-navigation-compose-v270 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
+androidx-ui-tooling-preview-v110 = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreviewVersion" }
+androidx-ui-tooling-vxxx = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiToolingVersion" }
+androidx-ui-v110 = { module = "androidx.compose.ui:ui", version.ref = "androidxUi" }
+androidx-ui-v151 = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
+androidx-ui-vxxx = { module = "androidx.compose.ui:ui", version.ref = "androidxUiVersion" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+annotations-v150 = { module = "org.jetbrains:annotations", version.ref = "annotationsVersion" }
+coil = { module = "io.coil-kt:coil", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-compose-v240 = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
+core = { module = "com.google.zxing:core", version.ref = "core" }
+core-ktx-v170 = { module = "androidx.core:core-ktx", version.ref = "androidxCoreKtxVersion" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
+androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
+compose-preview-renderer = { group = "com.android.tools.compose", name = "compose-preview-renderer", version.ref = "composePreviewRenderer" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycleRuntimeKtx" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Android" }
+ui = { module = "androidx.compose.ui:ui" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
+volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
+google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+

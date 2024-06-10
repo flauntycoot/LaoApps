@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.LaoApps" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

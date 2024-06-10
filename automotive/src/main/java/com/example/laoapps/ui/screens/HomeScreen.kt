@@ -1,0 +1,184 @@
+package com.example.laoapps.ui.screens
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.laoapps.data.AppInfo
+import com.example.laoapps.ui.components.DropDownMenuItem
+import com.example.laoapps.ui.theme.LaoBackG
+import kotlinx.coroutines.launch
+
+
+@Composable
+fun HomeScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val packageManager = context.packageManager
+    val installedApps by remember { mutableStateOf(getInstalledApps(packageManager)) }
+    Surface(
+        color = LaoBackG
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(256.dp),
+            modifier = Modifier.fillMaxSize().padding(128.dp)
+        )
+        {
+            items(installedApps) { appInfo ->
+                AppListItem(appInfo = appInfo, packageManager = packageManager)
+            }
+        }
+    }
+}
+
+
+
+
+@SuppressLint("SuspiciousIndentation")
+@Composable
+fun AppListItem(appInfo: AppInfo, packageManager: PackageManager) {
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable { expanded = true }
+                .fillMaxWidth(0.2f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                bitmap = appInfo.icon,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth(0.8f),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = appInfo.name,
+               textAlign = TextAlign.Justify,
+                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.fillMaxWidth()
+                )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropDownMenuItem(
+                    text = "Open",
+                    onClick = {
+                        expanded = false
+                        val launchIntent =
+                            packageManager.getLaunchIntentForPackage(appInfo.name)
+                        launchIntent?.let { context.startActivity(it) }
+                    }
+                )
+                DropDownMenuItem(
+                    text = "Uninstall",
+                    onClick = {
+                        expanded = false
+                        scope.launch {
+                            val uri = Uri.parse("package:${appInfo.name}")
+                            val intent = Intent(Intent.ACTION_DELETE, uri)
+                            context.startActivity(intent)
+                        }
+                    }
+                )
+                DropDownMenuItem(
+                    text = "Force Stop",
+                    onClick = {
+                        expanded = false
+                        // Implement force stop logic
+                    }
+                )
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+fun getInstalledApps(packageManager: PackageManager): List<AppInfo> {
+    val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+    return apps.filter {
+        (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 // Exclude system apps
+    }.map {
+        val name = it.loadLabel(packageManager).toString()
+        val drawable = it.loadIcon(packageManager)
+        val bitmap = drawableToBitmap(drawable)
+        val imageBitmap = bitmapToImageBitmap(bitmap)
+        AppInfo(name = name, icon = imageBitmap)
+    }
+}
+
+fun getDrawableBitmap(drawable: Drawable): Bitmap {
+    return if (drawable is BitmapDrawable) {
+        // If the drawable is already a BitmapDrawable, return its bitmap
+        drawable.bitmap
+    } else {
+        // Convert the drawable to a Bitmap using the provided method
+        drawableToBitmap(drawable)
+    }
+}
+
+fun drawableToBitmap(drawable: Drawable): Bitmap {
+    if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
+        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
+        val canvas = android.graphics.Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
+    } else {
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
+    }
+}
+
+fun bitmapToImageBitmap(bitmap: Bitmap): ImageBitmap {
+    return bitmap.asImageBitmap()
+}
+
+
+
+
