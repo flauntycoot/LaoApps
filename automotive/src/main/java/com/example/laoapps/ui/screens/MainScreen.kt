@@ -1,6 +1,5 @@
 package com.example.laoapps.ui.screens
 
-import android.os.Environment
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -16,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.laoapps.composablefiles.data.filesystems.LocalFileSystem
-import com.example.laoapps.composablefiles.ui.components.DirectoryComponent
 import com.example.laoapps.ui.components.NavigationDrawer
 
 @Composable
@@ -61,11 +58,11 @@ fun MainScreen(navController: NavHostController) {
                 composable("loading") { LoadingScreen(onNavigateToAuthorization = { navController.navigate("authorization") } ) }
                 composable("authorization") { AuthorizationScreen(onNavigateToHomeScreen = { navController.navigate("home") })}
                 composable("home") { HomeScreen(NavController) }
-                composable("market") { MarketScreen(NavController) }
-               // composable("file_manager") { FileManagerScreen(NavController) }
+                composable("market") { MarketScreen(context = NavController) }
+               composable("file_manager") { FileManagerScreen(NavController) }
                 composable("settings") { SettingsScreen(NavController) }
                 composable("main") { MainScreen(navController) }
-                composable("directory") { DirectoryComponent(Environment.getExternalStorageDirectory().absolutePath, LocalFileSystem())}
+                //composable("directory") { DirectoryComponent(Environment.getExternalStorageDirectory().absolutePath, LocalFileSystem())}
 
 
             }

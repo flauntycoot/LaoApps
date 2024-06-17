@@ -93,6 +93,7 @@ fun NavigationDrawer(navController: NavController, modifier: Modifier = Modifier
                     Modifier.fillMaxSize(0.25f)
                 }
             )
+/*
             MenuItem(
                 text = "File Manager",
                 icon = Icons.Rounded.Phone,
@@ -100,6 +101,8 @@ fun NavigationDrawer(navController: NavController, modifier: Modifier = Modifier
                     Modifier.fillMaxSize(0.25f)
                 }
             )
+
+ */
             MenuItem(
                 text = "Settings",
                 icon = Icons.Rounded.Settings,

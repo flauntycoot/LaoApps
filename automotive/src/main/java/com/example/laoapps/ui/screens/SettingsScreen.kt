@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.laoapps.ui.theme.LaoBackG
@@ -27,25 +28,28 @@ fun SettingsScreen(navController: NavHostController) {
     {
         Row(
             modifier = Modifier
-                .fillMaxSize(0.5f)
+                .fillMaxWidth(0.5f)
                 .padding(64.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.25f)
                     .clickable { }
-                    .padding(vertical = 64.dp, horizontal = 32.dp)
+                  //  .padding(vertical = 64.dp, horizontal = 32.dp)
 
             ) {
                 Icon(
                     Icons.Rounded.Place,
                     contentDescription = "Language settings",
                     tint = LaoGreen,
-                    modifier = Modifier.fillMaxWidth().fillMaxSize(0.5f)
+                    modifier = Modifier.fillMaxWidth().fillMaxSize(0.3f)
                 )
                 Spacer(modifier = Modifier.width(32.dp))
-                Text(text = "Language", style = androidx.compose.material3.MaterialTheme.typography.bodyLarge)
-                Text(text = "settings", style = androidx.compose.material3.MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "Language settings",
+                    textAlign = TextAlign.Justify,
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.fillMaxWidth()                )
 
             }
             //Divider()
@@ -53,7 +57,7 @@ fun SettingsScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth(0.25f)
                     .clickable { }
-                    .padding(vertical = 64.dp, horizontal = 32.dp)
+                   // .padding(vertical = 64.dp, horizontal = 32.dp)
 
 
             ) {
@@ -61,18 +65,14 @@ fun SettingsScreen(navController: NavHostController) {
                     Icons.Rounded.Info,
                     contentDescription = "Contact information",
                     tint = LaoGreen,
-                    modifier = Modifier.fillMaxWidth().fillMaxSize(0.5f)
+                    modifier = Modifier.fillMaxWidth().fillMaxSize(0.3f)
                 )
                 Spacer(modifier = Modifier.width(32.dp))
                 Text(
-                    text = "Contact",
+                    text = "Contact information",
+                    textAlign = TextAlign.Justify,
                     style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth().fillMaxSize(0.5f)
-                )
-                Text(
-                    text = "information",
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth().fillMaxSize(0.5f)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
