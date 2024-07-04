@@ -2,6 +2,8 @@ package com.example.laoapps.ui.screens
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import coil.transform.Transformation
 import com.example.laoapps.ui.components.NavigationDrawer
 
 @Composable
@@ -33,32 +36,16 @@ fun MainScreen(navController: NavHostController) {
             NavHost(
                 navController = NavController,
                 startDestination = "loading",
-                enterTransition = { //fadeIn(animationSpec = tween(700)) +
-                        slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    tween(200)
-                ) },
-                exitTransition = { //fadeOut(animationSpec = tween(700)) +
-                        slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    tween(200)
-                ) },
-                popEnterTransition= { //fadeIn(animationSpec = tween(700)) +
-                        slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    tween(200)
-                ) },
-                popExitTransition= { //fadeOut(animationSpec = tween(700)) +
-                        slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    tween(200)
-                ) },
-                modifier = Modifier.fillMaxSize()
+                enterTransition = { fadeIn(tween(300)) },
+                exitTransition = { fadeOut(tween(3000)) },
+                popEnterTransition= { fadeIn(tween(300)) },
+                popExitTransition= { fadeOut(tween(3000)) },
+//                modifier = Modifier.fillMaxSize()
             ) {
                 composable("loading") { LoadingScreen(onNavigateToAuthorization = { navController.navigate("authorization") } ) }
                 composable("authorization") { AuthorizationScreen(onNavigateToHomeScreen = { navController.navigate("home") })}
                 composable("home") { HomeScreen(NavController) }
-                composable("market") { MarketScreen(context = NavController) }
+                composable("market") { MarketScreen(NavController) }
                composable("file_manager") { FileManagerScreen(NavController) }
                 composable("settings") { SettingsScreen(NavController) }
                 composable("main") { MainScreen(navController) }

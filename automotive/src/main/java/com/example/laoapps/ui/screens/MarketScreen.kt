@@ -45,12 +45,12 @@ fun MarketScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(*downloads.value.toTypedArray()) { downloadInfo ->
-                DownloadItem(downloadInfo = downloadInfo)
+            //items(*downloads.value.toTypedArray()) { downloadInfo ->
+               // DownloadItem(downloadInfo = downloadInfo)
             }
         }
     }
-}
+//}
 /*
 @Composable
 fun MarketAppItem(appInfo: MarketAppInfo) {

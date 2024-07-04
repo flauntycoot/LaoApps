@@ -1,7 +1,6 @@
 package com.example.laoapps.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -9,8 +8,13 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.provider.Settings
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,9 +35,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -44,24 +49,35 @@ import androidx.navigation.NavHostController
 import com.example.laoapps.data.AppInfo
 import com.example.laoapps.ui.components.DropDownMenuItem
 import com.example.laoapps.ui.theme.LaoBackG
+import com.example.laoapps.ui.theme.LaoSecondary
+import com.example.laoapps.ui.theme.LaoWhite
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val context = LocalContext.current
     val packageManager = context.packageManager
-    val installedApps by remember { mutableStateOf(getInstalledApps(packageManager)) }
+    var installedApps by remember { mutableStateOf(getInstalledApps(packageManager)) }
+
     Surface(
         color = LaoBackG
     ) {
         LazyVerticalGrid(
             columns = GridCells.FixedSize(256.dp),
-            modifier = Modifier.fillMaxSize().padding(128.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(128.dp),
         )
         {
             items(installedApps) { appInfo ->
-                AppListItem(appInfo = appInfo, packageManager = packageManager)
+                AppListItem(
+                    appInfo = appInfo,
+                    packageManager = packageManager,
+                    onAppUninstalled = {
+                        installedApps = getInstalledApps(packageManager)
+                    }
+                )
             }
         }
     }
@@ -72,15 +88,29 @@ fun HomeScreen(navController: NavHostController) {
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun AppListItem(appInfo: AppInfo, packageManager: PackageManager) {
+fun AppListItem(appInfo: AppInfo, packageManager: PackageManager, onAppUninstalled: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val mutableInteractionSource = remember {
+        MutableInteractionSource()
+    }
+    val pressed = mutableInteractionSource.collectIsPressedAsState()
+    val elevation = animateDpAsState(
+        targetValue = if (pressed.value) {
+            32.dp
+        } else {
+            8.dp
+        },
+        label = "elevation"
+    )
         Column(
             modifier = Modifier
                 .padding(8.dp)
                 .clickable { expanded = true }
-                .fillMaxWidth(0.2f),
+                .fillMaxWidth(0.2f)
+            .graphicsLayer { this.shadowElevation = elevation.value.toPx() },
+
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -88,11 +118,16 @@ fun AppListItem(appInfo: AppInfo, packageManager: PackageManager) {
             Image(
                 bitmap = appInfo.icon,
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth(0.8f).height(128.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(128.dp),
                 contentScale = ContentScale.Fit
             )
-            Spacer(modifier = Modifier.width(8.dp).height(32.dp))
+            Spacer(modifier = Modifier
+                .width(8.dp)
+                .height(32.dp))
             Text(
+
                 text = appInfo.name,
                textAlign = TextAlign.Justify,
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
@@ -100,15 +135,17 @@ fun AppListItem(appInfo: AppInfo, packageManager: PackageManager) {
 
                 )
             DropdownMenu(
+                modifier = Modifier.background(LaoSecondary),
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
+
+
             ) {
                 DropDownMenuItem(
                     text = "Open",
                     onClick = {
                         expanded = false
-                        val launchIntent =
-                            packageManager.getLaunchIntentForPackage(appInfo.name)
+                        val launchIntent = packageManager.getLaunchIntentForPackage(appInfo.packageName)
                         launchIntent?.let { context.startActivity(it) }
                     }
                 )
@@ -117,26 +154,18 @@ fun AppListItem(appInfo: AppInfo, packageManager: PackageManager) {
                     onClick = {
                         expanded = false
                         scope.launch {
-                            val uri = Uri.parse("package:${appInfo.name}")
+                            val uri = Uri.parse("package:${appInfo.packageName}")
                             val intent = Intent(Intent.ACTION_DELETE, uri)
                             context.startActivity(intent)
+                            // Wait for a moment to allow the uninstall process to complete
+                            delay(2000)
+                            onAppUninstalled()
                         }
-                    }
-                )
-                DropDownMenuItem(
-                    text = "Force Stop",
-                    onClick = {
-                        expanded = false
-                        // Implement force stop logic
                     }
                 )
             }
         }
     }
-
-
-
-
 
 
 
@@ -150,9 +179,17 @@ fun getInstalledApps(packageManager: PackageManager): List<AppInfo> {
         val drawable = it.loadIcon(packageManager)
         val bitmap = drawableToBitmap(drawable)
         val imageBitmap = bitmapToImageBitmap(bitmap)
-        AppInfo(name = name, icon = imageBitmap)
+        AppInfo(name = name, packageName = it.packageName, icon = imageBitmap)
     }
 }
+
+/*
+@Composable
+fun rememberDrawablePainter(drawable: Drawable): Painter {
+    val bitmap = remember { drawableToBitmap(drawable) }
+    return BitmapPainter(bitmap.asImageBitmap())
+}
+
 
 fun getDrawableBitmap(drawable: Drawable): Bitmap {
     return if (drawable is BitmapDrawable) {
@@ -163,7 +200,7 @@ fun getDrawableBitmap(drawable: Drawable): Bitmap {
         drawableToBitmap(drawable)
     }
 }
-
+*/
 fun drawableToBitmap(drawable: Drawable): Bitmap {
     if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
         val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
@@ -183,7 +220,4 @@ fun drawableToBitmap(drawable: Drawable): Bitmap {
 fun bitmapToImageBitmap(bitmap: Bitmap): ImageBitmap {
     return bitmap.asImageBitmap()
 }
-
-
-
 

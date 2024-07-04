@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.serialization") version "1.6.21"
     id("kotlin-parcelize")
     id("com.google.gms.google-services")
+
 }
 java {
     toolchain {
