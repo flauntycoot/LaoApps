@@ -20,12 +20,11 @@ fun AppNavHost(navController: NavHostController) {
         composable("loading") { LoadingScreen(onNavigateToAuthorization = { navController.navigate("authorization") } ) }
         composable("authorization") { AuthorizationScreen(onNavigateToHomeScreen = { navController.navigate("home") })}
         composable("home") { HomeScreen(navController) }
-      //  composable("market") { MarketScreen(context = Context) }
-        //composable("directory") { DirectoryComponent(Environment.getExternalStorageDirectory().absolutePath, LocalFileSystem())}
-       // composable("file_manager") { FileManagerScreen(navController) }
+        composable("market") { MarketScreen(navController) }
         composable("settings") {
             SettingsScreen(
                 navController = navController
             )
-        }    }
+        }
+    }
 }

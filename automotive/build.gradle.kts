@@ -73,11 +73,13 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.volley)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.firebase.firestore)
     debugImplementation(libs.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview.v110)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling)
-
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.ui)

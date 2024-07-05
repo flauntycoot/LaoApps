@@ -5,10 +5,8 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.provider.Settings
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,7 +24,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.*
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,22 +35,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.laoapps.data.AppInfo
+import com.example.laoapps.data.HomeAppInfo
 import com.example.laoapps.ui.components.DropDownMenuItem
 import com.example.laoapps.ui.theme.LaoBackG
 import com.example.laoapps.ui.theme.LaoSecondary
-import com.example.laoapps.ui.theme.LaoWhite
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -88,7 +84,7 @@ fun HomeScreen(navController: NavHostController) {
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun AppListItem(appInfo: AppInfo, packageManager: PackageManager, onAppUninstalled: () -> Unit) {
+fun AppListItem(appInfo: HomeAppInfo, packageManager: PackageManager, onAppUninstalled: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -170,7 +166,7 @@ fun AppListItem(appInfo: AppInfo, packageManager: PackageManager, onAppUninstall
 
 
 
-fun getInstalledApps(packageManager: PackageManager): List<AppInfo> {
+fun getInstalledApps(packageManager: PackageManager): List<HomeAppInfo> {
     val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
     return apps.filter {
         (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 // Exclude system apps
@@ -179,28 +175,10 @@ fun getInstalledApps(packageManager: PackageManager): List<AppInfo> {
         val drawable = it.loadIcon(packageManager)
         val bitmap = drawableToBitmap(drawable)
         val imageBitmap = bitmapToImageBitmap(bitmap)
-        AppInfo(name = name, packageName = it.packageName, icon = imageBitmap)
+        HomeAppInfo(name = name, packageName = it.packageName, icon = imageBitmap)
     }
 }
 
-/*
-@Composable
-fun rememberDrawablePainter(drawable: Drawable): Painter {
-    val bitmap = remember { drawableToBitmap(drawable) }
-    return BitmapPainter(bitmap.asImageBitmap())
-}
-
-
-fun getDrawableBitmap(drawable: Drawable): Bitmap {
-    return if (drawable is BitmapDrawable) {
-        // If the drawable is already a BitmapDrawable, return its bitmap
-        drawable.bitmap
-    } else {
-        // Convert the drawable to a Bitmap using the provided method
-        drawableToBitmap(drawable)
-    }
-}
-*/
 fun drawableToBitmap(drawable: Drawable): Bitmap {
     if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
         val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel

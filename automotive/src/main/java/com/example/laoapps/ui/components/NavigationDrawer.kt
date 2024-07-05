@@ -5,14 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material3.Icon
@@ -66,9 +64,7 @@ fun NavigationDrawer(navController: NavController, modifier: Modifier = Modifier
         modifier = modifier
             .fillMaxSize()
             .background(color = Color.Transparent)
-         //   .padding(8.dp)
             .zIndex(1f),        // Ensures the drawer is above the content
-       // shape = MaterialTheme.shapes.medium
 
     ) {
         Column(
@@ -76,7 +72,6 @@ fun NavigationDrawer(navController: NavController, modifier: Modifier = Modifier
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-              //  .padding(4.dp)
         ) {
             // Add items for navigation menu here
             MenuItem(
@@ -93,16 +88,7 @@ fun NavigationDrawer(navController: NavController, modifier: Modifier = Modifier
                     Modifier.fillMaxSize(0.25f)
                 }
             )
-/*
-            MenuItem(
-                text = "File Manager",
-                icon = Icons.Rounded.Phone,
-                onClick = { navController.navigate("file_manager")
-                    Modifier.fillMaxSize(0.25f)
-                }
-            )
 
- */
             MenuItem(
                 text = "Settings",
                 icon = Icons.Rounded.Settings,

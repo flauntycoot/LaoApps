@@ -53,6 +53,10 @@ runtimeLivedata = "1.6.7"
 volley = "1.2.1"
 googleServices = "4.4.1"
 firebaseDatabase = "21.0.0"
+firebaseFirestoreKtx = "25.0.0"
+firebaseStorageKtx = "21.0.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseFirestore = "25.0.0"
 
 [libraries]
 activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
@@ -116,8 +120,12 @@ androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtim
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+googleGmsGoogleServices = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

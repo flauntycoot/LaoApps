@@ -1,144 +1,144 @@
 package com.example.laoapps.ui.screens
 
-import android.annotation.SuppressLint
-import android.app.DownloadManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Environment
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.laoapps.DownloadsDatabaseHelper
-import com.example.laoapps.data.DownloadInfo
+import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.laoapps.data.AppInfo
+import com.example.laoapps.data.downloadFileFromGoogleDrive
+import com.example.laoapps.data.fetchAppInfo
 import com.example.laoapps.ui.theme.LaoBackG
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Composable
-fun MarketScreen(navController: NavController) {
-    val context = LocalContext.current
-    val dbHelper = DownloadsDatabaseHelper(context)
-    val downloads = remember { mutableStateOf(dbHelper.getAllDownloads()) }
 
-    Surface(
-        color = LaoBackG
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+@Composable
+fun MarketScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var appList by remember { mutableStateOf(emptyList<AppInfo>()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        isLoading = true
+        appList = fetchAppInfo()
+        isLoading = false
+    }
+
+    if (isLoading) {
+        CircularProgressIndicator(modifier = Modifier.fillMaxSize().background(color = LaoBackG))
+    } else {
+        Surface(
+            color = LaoBackG
         ) {
-            //items(*downloads.value.toTypedArray()) { downloadInfo ->
-               // DownloadItem(downloadInfo = downloadInfo)
+            LazyVerticalGrid(
+                columns = GridCells.FixedSize(256.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(128.dp),
+            )
+            {
+                items(appList) { appInfo ->
+                    AppItem(
+                        appInfo = appInfo,
+                        onDownloadClick = { downloadUrl ->
+                            coroutineScope.launch {
+                                downloadFileFromGoogleDrive(
+                                    context,
+                                    downloadUrl,
+                                    { progress -> /* handle progress */ },
+                                    { success, filePath ->
+                                        if (success) {
+                                            // Handle successful download, e.g., prompt to install
+                                        } else {
+                                            // Handle download failure
+                                        }
+                                    })
+                            }
+                        }
+                    )
+                }
             }
         }
     }
-//}
-/*
-@Composable
-fun MarketAppItem(appInfo: MarketAppInfo) {
-    var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+}
 
-    Row(
+@Composable
+fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit) {
+    val progress by remember { mutableIntStateOf(0) }
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
         modifier = Modifier
             .padding(8.dp)
             .clickable { expanded = true }
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(0.2f),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val bitmap = (appInfo.icon as BitmapDrawable).bitmap
+        // Replace with actual logic to load image/icon
         Image(
-            bitmap = bitmap.asImageBitmap(),
+            painter = rememberAsyncImagePainter(appInfo.iconUrl), // Assuming iconUrl is the URL to the icon
             contentDescription = null,
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.2f)
+                .height(128.dp),
+            contentScale = ContentScale.Fit
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier
+            .width(8.dp)
+            .height(32.dp))
         Text(
             text = appInfo.name,
-            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Justify,
+            style = com.example.laoapps.ui.theme.Typography.bodyLarge,
+            modifier = Modifier.fillMaxWidth()
         )
+        Button(onClick = { onDownloadClick(appInfo.downloadUrl) }) {
+            Text("Download")
+        }
+        if (progress > 0) {
+            LinearProgressIndicator(progress = progress / 100f)
+            Text("$progress%")
+        }
+
+        // Additional content based on 'expanded' state
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DropDownMenuItem(
-                text = "Install",
-                onClick = {
-                    expanded = false
-                    // Handle install logic here
-                }
-            )
+            // Add dropdown items here if needed
         }
-    }
-}
-*/
-
-
-@SuppressLint("Range")
-fun downloadAndInstallApk(context: Context, url: String, fileName: String) {
-    val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    val request = DownloadManager.Request(Uri.parse(url))
-        .setTitle(fileName)
-        .setDescription("Downloading $fileName")
-        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-    val downloadId = downloadManager.enqueue(request)
-
-    CoroutineScope(Dispatchers.IO).launch {
-        var downloading = true
-        while (downloading) {
-            val query = DownloadManager.Query().setFilterById(downloadId)
-            val cursor = downloadManager.query(query)
-            if (cursor.moveToFirst()) {
-                val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                    downloading = false
-                    val uriString = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
-                    installApk(context, uriString)
-                }
-            }
-            cursor.close()
-        }
-    }
-}
-
-fun installApk(context: Context, uriString: String) {
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.setDataAndType(Uri.parse(uriString), "application/vnd.android.package-archive")
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    context.startActivity(intent)
-}
-@Composable
-fun DownloadItem(downloadInfo: DownloadInfo, context: Context) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                downloadAndInstallApk(context, downloadInfo.url, downloadInfo.fileName)
-            }
-            .padding(16.dp)
-    ) {
-        Text(text = downloadInfo.fileName, modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = downloadInfo.status)
     }
 }
