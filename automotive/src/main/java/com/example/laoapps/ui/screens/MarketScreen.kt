@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +41,7 @@ import com.example.laoapps.data.AppInfo
 import com.example.laoapps.data.downloadFileFromGoogleDrive
 import com.example.laoapps.data.fetchAppInfo
 import com.example.laoapps.ui.theme.LaoBackG
+import com.example.laoapps.ui.theme.LaoGreen
 import kotlinx.coroutines.launch
 
 
@@ -57,7 +59,7 @@ fun MarketScreen(navController: NavHostController) {
     }
 
     if (isLoading) {
-        CircularProgressIndicator(modifier = Modifier.fillMaxSize().background(color = LaoBackG))
+        CircularProgressIndicator(modifier = Modifier.fillMaxSize().background(color = LaoBackG), color = LaoGreen)
     } else {
         Surface(
             color = LaoBackG

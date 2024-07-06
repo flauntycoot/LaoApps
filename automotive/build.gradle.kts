@@ -15,8 +15,6 @@ kotlin{
     jvmToolchain{
         languageVersion.set(JavaLanguageVersion.of(17))
     }
-
-
 }
 android {
     compileSdkVersion(34)
@@ -80,7 +78,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview.v110)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.ui)
     implementation(libs.androidx.material3.v100alpha12)
@@ -94,6 +91,5 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.serialization.json)
-
     implementation(libs.prdownloader)
 }
