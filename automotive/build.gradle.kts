@@ -71,9 +71,10 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.volley)
     implementation(libs.firebase.database)
+//implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
-    implementation(libs.firebase.firestore)
     debugImplementation(libs.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview.v110)
     implementation(libs.androidx.ui)
@@ -91,5 +92,9 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.prdownloader)
+    implementation("com.google.firebase:firebase-auth:21.0.3")
+    implementation("com.google.firebase:firebase-storage:20.0.0")
+    implementation("com.google.firebase:firebase-firestore:24.0.0")
+
+    // implementation(libs.prdownloader)
 }

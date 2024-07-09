@@ -9,18 +9,19 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.5.0")
+        classpath(libs.gradle)
         classpath(kotlin("gradle-plugin", version = "1.9.3"))
-        classpath("com.google.gms:google-services:4.4.1")
+        classpath(libs.google.services.v442)
+
 
     }
 }
 
 allprojects {
     repositories {
+        google()
         mavenCentral()
         mavenLocal()
         maven {
@@ -31,11 +32,6 @@ allprojects {
             // Android JSC is installed from npm
             url=uri("$rootDir/../node_modules/jsc-android/dist")
         }
-
-        google()
-        jcenter()
-
-
         maven {
             // All of the Detox artifacts are provided via the npm module
             url= uri("$rootDir/../../../node_modules/detox/Detox-android")

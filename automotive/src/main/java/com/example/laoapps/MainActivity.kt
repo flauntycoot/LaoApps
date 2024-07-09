@@ -2,6 +2,7 @@ package com.example.laoapps
 
 import android.Manifest
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -18,6 +19,15 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.laoapps.ui.screens.MainScreen
 import com.example.laoapps.ui.theme.LaoAppsTheme
+import com.google.firebase.FirebaseApp
+
+class MyApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        FirebaseApp.initializeApp(this)
+    }
+}
+
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
@@ -47,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
     private val onActivityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
+            if (it.resultCode == RESULT_OK) {
                 this.onPermissionsGranted()
             } else {
                 this.onPermissionsRejected()

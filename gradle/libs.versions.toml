@@ -20,13 +20,20 @@ coilComposeVersion = "2.4.0"
 composeBomVersion = "2024.05.00"
 core = "3.5.1"
 coreKtxVersion = "1.13.1"
+firebaseDatabase_ktx = "20.0.3"
+googleServicesVersion = "4.4.2"
+gradle = "8.5.0"
+junitJunit = "4.12"
 kotlin = "1.9.23"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
+kotlinxCoroutines_android = "1.5.1"
+kotlinxCoroutines_play_services = "1.5.1"
 kotlinxSerializationJson = "1.3.3"
+library = "1.0"
 lifecycleRuntimeKtxVersion = "2.8.0"
 material = "1.12.0"
 material3 = "1.0.0-alpha12"
@@ -89,6 +96,9 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose"
 coil-compose-v240 = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 core = { module = "com.google.zxing:core", version.ref = "core" }
 core-ktx-v170 = { module = "androidx.core:core-ktx", version.ref = "androidxCoreKtxVersion" }
+firebase-database_ktx = { module = "com.google.firebase:firebase-database - ktx", version.ref = "firebaseDatabase_ktx" }
+google-services-v442 = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -107,7 +117,11 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 compose-preview-renderer = { group = "com.android.tools.compose", name = "compose-preview-renderer", version.ref = "composePreviewRenderer" }
+junit-v412 = { module = "junit:junit", version.ref = "junitJunit" }
+kotlinx-coroutines_android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines - android", version.ref = "kotlinxCoroutines_android" }
+kotlinx-coroutines_play_services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines - play - services", version.ref = "kotlinxCoroutines_play_services" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+library = { module = "com.example:library", version.ref = "library" }
 lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycleRuntimeKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Android" }
