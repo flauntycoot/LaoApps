@@ -10,31 +10,42 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.laoapps.ui.theme.LaoBackG
 import com.example.laoapps.ui.theme.LaoGreen
 import com.google.firebase.auth.FirebaseAuth
@@ -58,9 +69,8 @@ fun MarketScreen(navController: NavController) {
     val errorMessageState = remember { mutableStateOf<String?>(null) }
     val isLoadingState = remember { mutableStateOf(true) }
     val context = LocalContext.current
-    val scope = rememberCoroutineScope() // Move scope to composable context
+    val scope = rememberCoroutineScope()
 
-    // Authenticate Firebase
     LaunchedEffect(Unit) {
         val auth = FirebaseAuth.getInstance()
         auth.signInAnonymously().addOnCompleteListener { task ->
@@ -134,10 +144,12 @@ fun ErrorMessage(errorMessage: String) {
 @Composable
 fun AppList(apps: List<AppInfo>, context: Context) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(5),
+        columns = GridCells.Fixed(5), // Adjust the number of columns
         modifier = Modifier
             .fillMaxSize()
-            .padding(64.dp),
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(apps) { appInfo ->
             AppItem(
@@ -187,7 +199,6 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
     var downloadProgress by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
 
-    // Convert gs:// URL to https:// URL
     LaunchedEffect(appInfo.iconUrl) {
         scope.launch {
             if (appInfo.iconUrl.startsWith("gs://")) {
@@ -211,28 +222,30 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
         modifier = Modifier
             .padding(8.dp)
             .clickable { expanded = true }
-            .fillMaxWidth(0.2f),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (httpsUrl != null) {
-            Image(
-                painter = rememberAsyncImagePainter(httpsUrl),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(httpsUrl)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth()
                     .height(128.dp),
                 contentScale = ContentScale.Fit
             )
         } else {
-            Text("*Loading*",textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth())
+            Text("Loading icon...", modifier = Modifier.fillMaxWidth())
         }
-        Spacer(modifier = Modifier.width(8.dp).height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = appInfo.name,
             textAlign = TextAlign.Center,
-            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
             modifier = Modifier.fillMaxWidth()
         )
         if (isDownloading) {
@@ -241,10 +254,10 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
             Text("$downloadProgress%")
         } else {
             Button(onClick = {
-                onDownloadClick(appInfo.downloadUrl)
+                val downloadId = startDownload(context, appInfo.downloadUrl, appInfo.name)
                 isDownloading = true
                 scope.launch {
-                    monitorDownloadProgress(context, appInfo.downloadUrl) { progress ->
+                    monitorDownloadProgress(context, downloadId) { progress ->
                         downloadProgress = progress
                         if (progress == 100) {
                             isDownloading = false
@@ -273,7 +286,7 @@ fun convertToDirectDownloadUrl(url: String): String {
     }
 }
 
-fun startDownload(context: Context, url: String, fileName: String) {
+fun startDownload(context: Context, url: String, fileName: String): Long {
     val request = DownloadManager.Request(Uri.parse(url))
         .setTitle("Downloading $fileName")
         .setDescription("Downloading ${Uri.parse(url).lastPathSegment}")
@@ -304,25 +317,18 @@ fun startDownload(context: Context, url: String, fileName: String) {
             }
         }
     }, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
+    return downloadId
 }
 
 @SuppressLint("Range")
-suspend fun monitorDownloadProgress(context: Context, url: String, onProgressUpdate: (Int) -> Unit) {
+suspend fun monitorDownloadProgress(context: Context, downloadId: Long, onProgressUpdate: (Int) -> Unit) {
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    val request = DownloadManager.Request(Uri.parse(url))
-        .setTitle("Downloading APK")
-        .setDescription("Downloading ${Uri.parse(url).lastPathSegment}")
-        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, Uri.parse(url).lastPathSegment)
-        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        .setAllowedOverMetered(true)
-        .setAllowedOverRoaming(true)
-        .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+    val query = DownloadManager.Query().setFilterById(downloadId)
 
-    val downloadId = downloadManager.enqueue(request)
     var isDownloading = true
 
     while (isDownloading) {
-        val query = DownloadManager.Query().setFilterById(downloadId)
         val cursor: Cursor = downloadManager.query(query)
         if (cursor.moveToFirst()) {
             val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))

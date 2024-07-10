@@ -63,7 +63,9 @@ fun HomeScreen(navController: NavHostController) {
             columns = GridCells.Fixed(5),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(64.dp),
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         )
         {
             items(installedApps) { appInfo ->
@@ -104,8 +106,8 @@ fun AppListItem(appInfo: HomeAppInfo, packageManager: PackageManager, onAppUnins
             modifier = Modifier
                 .padding(8.dp)
                 .clickable { expanded = true }
-                .fillMaxWidth(0.2f)
-            .graphicsLayer { this.shadowElevation = elevation.value.toPx() },
+                .fillMaxWidth(),
+            //.graphicsLayer { this.shadowElevation = elevation.value.toPx() },
 
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,13 +122,12 @@ fun AppListItem(appInfo: HomeAppInfo, packageManager: PackageManager, onAppUnins
                 contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier
-                .width(8.dp)
-                .height(32.dp))
+                .height(16.dp))
             Text(
 
                 text = appInfo.name,
                textAlign = TextAlign.Center,//.Justify,
-                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.fillMaxWidth()
 
                 )

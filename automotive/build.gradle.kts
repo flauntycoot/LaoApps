@@ -96,6 +96,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:21.0.3")
     implementation("com.google.firebase:firebase-storage:20.0.0")
     implementation("com.google.firebase:firebase-firestore:24.0.0")
-
+    implementation("com.google.firebase:firebase-appcheck:16.0.0")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity:16.0.0")
     // implementation(libs.prdownloader)
 }
