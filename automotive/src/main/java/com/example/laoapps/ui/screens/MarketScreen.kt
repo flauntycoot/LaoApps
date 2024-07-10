@@ -12,17 +12,11 @@ import android.os.Environment
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
@@ -30,19 +24,14 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -69,13 +58,13 @@ fun MarketScreen(navController: NavController) {
     val errorMessageState = remember { mutableStateOf<String?>(null) }
     val isLoadingState = remember { mutableStateOf(true) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope() // Move scope to composable context
 
     // Authenticate Firebase
     LaunchedEffect(Unit) {
         val auth = FirebaseAuth.getInstance()
         auth.signInAnonymously().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val scope = rememberCoroutineScope()
                 scope.launch {
                     fetchAppData(
                         context = context,
@@ -107,12 +96,7 @@ fun MarketScreen(navController: NavController) {
 }
 
 @Composable
-fun MarketScreenContent(
-    isLoading: Boolean,
-    errorMessage: String?,
-    apps: List<AppInfo>,
-    context: Context
-) {
+fun MarketScreenContent(isLoading: Boolean, errorMessage: String?, apps: List<AppInfo>, context: Context) {
     Surface(
         color = LaoBackG,
         modifier = Modifier.fillMaxSize()
@@ -149,11 +133,11 @@ fun ErrorMessage(errorMessage: String) {
 
 @Composable
 fun AppList(apps: List<AppInfo>, context: Context) {
-    LazyColumn(
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(5),
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(64.dp),
     ) {
         items(apps) { appInfo ->
             AppItem(
@@ -169,12 +153,7 @@ fun AppList(apps: List<AppInfo>, context: Context) {
     }
 }
 
-suspend fun fetchAppData(
-    context: Context,
-    onSuccess: (List<AppInfo>) -> Unit,
-    onError: (String) -> Unit,
-    maxRetries: Int = 3
-) {
+suspend fun fetchAppData(context: Context, onSuccess: (List<AppInfo>) -> Unit, onError: (String) -> Unit, maxRetries: Int = 3) {
     val db = FirebaseFirestore.getInstance()
     var attempt = 0
 
@@ -232,7 +211,7 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
         modifier = Modifier
             .padding(8.dp)
             .clickable { expanded = true }
-            .fillMaxWidth(),
+            .fillMaxWidth(0.2f),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -246,22 +225,18 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
                 contentScale = ContentScale.Fit
             )
         } else {
-            Text("Loading icon...", modifier = Modifier.fillMaxWidth())
+            Text("*Loading*",textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth())
         }
-        Spacer(modifier = Modifier
-            .width(8.dp)
-            .height(16.dp))
+        Spacer(modifier = Modifier.width(8.dp).height(16.dp))
         Text(
             text = appInfo.name,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.body1,
+            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
             modifier = Modifier.fillMaxWidth()
         )
         if (isDownloading) {
-            CircularProgressIndicator(
-                progress = downloadProgress / 100f,
-                modifier = Modifier.size(50.dp)
-            )
+            CircularProgressIndicator(progress = downloadProgress / 100f, modifier = Modifier.size(50.dp))
             Spacer(modifier = Modifier.height(8.dp))
             Text("$downloadProgress%")
         } else {
@@ -302,10 +277,7 @@ fun startDownload(context: Context, url: String, fileName: String) {
     val request = DownloadManager.Request(Uri.parse(url))
         .setTitle("Downloading $fileName")
         .setDescription("Downloading ${Uri.parse(url).lastPathSegment}")
-        .setDestinationInExternalPublicDir(
-            Environment.DIRECTORY_DOWNLOADS,
-            Uri.parse(url).lastPathSegment
-        )
+        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, Uri.parse(url).lastPathSegment)
         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         .setAllowedOverMetered(true)
         .setAllowedOverRoaming(true)
@@ -322,11 +294,7 @@ fun startDownload(context: Context, url: String, fileName: String) {
             if (id == downloadId) {
                 Log.d("MarketScreen", "Download completed for ID: $downloadId")
                 val uri: Uri = downloadManager.getUriForDownloadedFile(downloadId) ?: return
-                val fileUri: Uri = FileProvider.getUriForFile(
-                    context!!,
-                    "${context.packageName}.provider",
-                    File(uri.path!!)
-                )
+                val fileUri: Uri = FileProvider.getUriForFile(context!!, "${context.packageName}.provider", File(uri.path!!))
 
                 val installIntent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(fileUri, "application/vnd.android.package-archive")
@@ -339,19 +307,12 @@ fun startDownload(context: Context, url: String, fileName: String) {
 }
 
 @SuppressLint("Range")
-suspend fun monitorDownloadProgress(
-    context: Context,
-    url: String,
-    onProgressUpdate: (Int) -> Unit
-) {
+suspend fun monitorDownloadProgress(context: Context, url: String, onProgressUpdate: (Int) -> Unit) {
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     val request = DownloadManager.Request(Uri.parse(url))
         .setTitle("Downloading APK")
         .setDescription("Downloading ${Uri.parse(url).lastPathSegment}")
-        .setDestinationInExternalPublicDir(
-            Environment.DIRECTORY_DOWNLOADS,
-            Uri.parse(url).lastPathSegment
-        )
+        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, Uri.parse(url).lastPathSegment)
         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         .setAllowedOverMetered(true)
         .setAllowedOverRoaming(true)
@@ -371,10 +332,8 @@ suspend fun monitorDownloadProgress(
                 isDownloading = false
                 break
             }
-            val bytesDownloaded =
-                cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-            val bytesTotal =
-                cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+            val bytesDownloaded = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+            val bytesTotal = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
             if (bytesTotal != 0) {
                 val progress = ((bytesDownloaded * 100L) / bytesTotal).toInt()
                 onProgressUpdate(progress)

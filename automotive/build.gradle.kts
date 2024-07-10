@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.firebase.auth.ktx)
     debugImplementation(libs.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview.v110)
     implementation(libs.androidx.ui)

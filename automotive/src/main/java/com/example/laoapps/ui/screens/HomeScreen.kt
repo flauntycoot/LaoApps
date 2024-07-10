@@ -60,10 +60,10 @@ fun HomeScreen(navController: NavHostController) {
         color = LaoBackG
     ) {
         LazyVerticalGrid(
-            columns = GridCells.FixedSize(256.dp),
+            columns = GridCells.Fixed(5),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(128.dp),
+                .padding(64.dp),
         )
         {
             items(installedApps) { appInfo ->
@@ -125,7 +125,7 @@ fun AppListItem(appInfo: HomeAppInfo, packageManager: PackageManager, onAppUnins
             Text(
 
                 text = appInfo.name,
-               textAlign = TextAlign.Justify,
+               textAlign = TextAlign.Center,//.Justify,
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth()
 
