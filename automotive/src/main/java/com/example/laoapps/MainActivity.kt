@@ -19,25 +19,18 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.laoapps.ui.screens.MainScreen
 import com.example.laoapps.ui.theme.LaoAppsTheme
-import com.google.firebase.FirebaseApp
-import com.google.firebase.appcheck.FirebaseAppCheck
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
-
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
-        val firebaseAppCheck = FirebaseAppCheck.getInstance()
-        firebaseAppCheck.installAppCheckProviderFactory(PlayIntegrityAppCheckProviderFactory.getInstance())
         this.onPermissionsGranted()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-              onActivityResult.launch(
-                  Intent(
-                      Settings.ACTION_WIFI_ADD_NETWORKS, //adb shell appops set --uid PACKAGE_NAME MANAGE_EXTERNAL_STORAGE allow
-             Uri.parse("package:$packageName")))
+                onActivityResult.launch(
+                    Intent(
+                        Settings.ACTION_WIFI_ADD_NETWORKS, //adb shell appops set --uid PACKAGE_NAME MANAGE_EXTERNAL_STORAGE allow
+                        Uri.parse("package:$packageName")))
             } else {
                 this.onPermissionsGranted()
             }

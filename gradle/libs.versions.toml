@@ -17,6 +17,7 @@ appcompatVersion = "1.6.1"
 coil = "n"
 coilCompose = "2.6.0"
 coilComposeVersion = "2.4.0"
+coilKtCoilCompose = "2.0.0"
 composeBomVersion = "2024.05.00"
 core = "3.5.1"
 coreKtxVersion = "1.13.1"
@@ -33,6 +34,13 @@ appcompat = "1.6.1"
 kotlinxCoroutines_android = "1.5.1"
 kotlinxCoroutines_play_services = "1.5.1"
 kotlinxSerializationJson = "1.3.3"
+ktorClientCio = "2.0.0"
+ktorClientContentNegotiation = "2.0.0"
+ktorClientCore = "2.0.0"
+ktorClientJson = "2.0.0"
+ktorClientLogging = "2.0.0"
+ktorClientSerialization = "2.0.0"
+ktorSerializationKotlinxJson = "2.0.0"
 library = "1.0"
 lifecycleRuntimeKtxVersion = "2.8.0"
 material = "1.12.0"
@@ -94,6 +102,7 @@ annotations = { module = "org.jetbrains:annotations", version.ref = "annotations
 annotations-v150 = { module = "org.jetbrains:annotations", version.ref = "annotationsVersion" }
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-compose-v200 = { module = "io.coil-kt:coil-compose", version.ref = "coilKtCoilCompose" }
 coil-compose-v240 = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 core = { module = "com.google.zxing:core", version.ref = "core" }
 core-ktx-v170 = { module = "androidx.core:core-ktx", version.ref = "androidxCoreKtxVersion" }
@@ -122,6 +131,13 @@ junit-v412 = { module = "junit:junit", version.ref = "junitJunit" }
 kotlinx-coroutines_android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines - android", version.ref = "kotlinxCoroutines_android" }
 kotlinx-coroutines_play_services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines - play - services", version.ref = "kotlinxCoroutines_play_services" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCio" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
+ktor-client-json = { module = "io.ktor:ktor-client-json", version.ref = "ktorClientJson" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientLogging" }
+ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktorClientSerialization" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 library = { module = "com.example:library", version.ref = "library" }
 lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycleRuntimeKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }

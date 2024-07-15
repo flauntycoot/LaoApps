@@ -70,12 +70,6 @@ dependencies {
     implementation(libs.annotations)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.volley)
-    implementation(libs.firebase.database)
-//implementation(libs.firebase.database.ktx)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.firestore.ktx)
-    implementation(libs.firebase.storage.ktx)
-    implementation(libs.firebase.auth.ktx)
     debugImplementation(libs.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview.v110)
     implementation(libs.androidx.ui)
@@ -93,10 +87,18 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.serialization.json)
-    implementation("com.google.firebase:firebase-auth:21.0.3")
-    implementation("com.google.firebase:firebase-storage:20.0.0")
-    implementation("com.google.firebase:firebase-firestore:24.0.0")
-    implementation("com.google.firebase:firebase-appcheck:16.0.0")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity:16.0.0")
     // implementation(libs.prdownloader)
+    implementation("io.ktor:ktor-client-core:2.2.3")
+    implementation("io.ktor:ktor-client-cio:2.2.3")
+    implementation("io.ktor:ktor-client-logging:2.2.3")
+    implementation("io.ktor:ktor-client-content-negotiation:2.2.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.3")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("io.coil-kt:coil-compose:2.0.0")
+
+
+
+
+
 }

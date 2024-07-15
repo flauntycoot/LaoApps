@@ -11,15 +11,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -29,13 +21,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -48,15 +34,24 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.laoapps.ui.theme.LaoBackG
 import com.example.laoapps.ui.theme.LaoGreen
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.math.pow
 
+@Serializable
 data class AppInfo(
     val name: String = "",
     val iconUrl: String = "",
@@ -72,28 +67,19 @@ fun MarketScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        val auth = FirebaseAuth.getInstance()
-        auth.signInAnonymously().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                scope.launch {
-                    fetchAppData(
-                        context = context,
-                        onSuccess = { appList ->
-                            appsState.value = appList
-                            isLoadingState.value = false
-                            Log.d("MarketScreen", "Fetched apps: $appList")
-                        },
-                        onError = { error ->
-                            errorMessageState.value = error
-                            isLoadingState.value = false
-                            Log.e("MarketScreen", "Error fetching apps: $error")
-                        }
-                    )
+        scope.launch {
+            fetchAppData(
+                onSuccess = { appList ->
+                    appsState.value = appList
+                    isLoadingState.value = false
+                    Log.d("MarketScreen", "Fetched apps: $appList")
+                },
+                onError = { error ->
+                    errorMessageState.value = error
+                    isLoadingState.value = false
+                    Log.e("MarketScreen", "Error fetching apps: $error")
                 }
-            } else {
-                errorMessageState.value = "Authentication failed: ${task.exception?.message}"
-                isLoadingState.value = false
-            }
+            )
         }
     }
 
@@ -144,7 +130,7 @@ fun ErrorMessage(errorMessage: String) {
 @Composable
 fun AppList(apps: List<AppInfo>, context: Context) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(5), // Adjust the number of columns
+        columns = GridCells.Fixed(5),
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
@@ -155,8 +141,7 @@ fun AppList(apps: List<AppInfo>, context: Context) {
             AppItem(
                 appInfo = appInfo,
                 onDownloadClick = { url ->
-                    val directDownloadUrl = convertToDirectDownloadUrl(url)
-                    startDownload(context, directDownloadUrl, appInfo.name)
+                    startDownload(context, url, appInfo.name)
                     Log.d("MarketScreen", "Download clicked for: $url")
                 },
                 context = context
@@ -165,21 +150,46 @@ fun AppList(apps: List<AppInfo>, context: Context) {
     }
 }
 
-suspend fun fetchAppData(context: Context, onSuccess: (List<AppInfo>) -> Unit, onError: (String) -> Unit, maxRetries: Int = 3) {
-    val db = FirebaseFirestore.getInstance()
+suspend fun fetchAppData(onSuccess: (List<AppInfo>) -> Unit, onError: (String) -> Unit, maxRetries: Int = 3) {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.ALL
+        }
+        expectSuccess = true
+        engine {
+            requestTimeout = 60000
+            endpoint {
+                connectTimeout = 60000
+                socketTimeout = 60000
+            }
+        }
+    }
+
+    val apiToken = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6IjFrYnhacFJNQGJSI0tSbE1xS1lqIn0.eyJ1c2VyIjoiamsxMDc3NyIsInR5cGUiOiJhcGlfa2V5IiwicG9ydGFsX3Rva2VuIjoiNjM5MmIwOWQtZGFkZS00NDgwLThhNmEtNTM2ZWM3NzBkMDE2IiwiYXBpX2tleV9pZCI6ImZmZmVhNDEwLTUyOTMtNDQxMS05ODJhLTY1ZDI0ZjMzYjcxMiIsImlhdCI6MTcyMTA0MTMxM30.llRJ85fCtG8GWutn6FYYaHG4hQ7MpT1u5JI4TsbZDR_tsAjDX5XjmpEgr1qcL189NwFh6sYXCEzVII6qymJgVzWE0f8UJqAWsbE2rnHXYZc1qStz6rX4XFfTvCZambVpL1usPXFhAbqBz0AKnag1GbA5FnXpGJJsASQlXsx1kh3-D_F6K9C2DLG_EUFXlsSapdW4aldwQv6R_fNFMtFIipqBhZlR8c-_bSYqyk46sCYbhJO1usIHw978hjlbSBXnrKUlV_m32g56pAiTC_pLwh1qXI_PYj0DI2G68xqfV17PlSQ3I5LIdQTmvmK458Y-OxHvII3eIArWESAxvACv39i-fYltIX84cphfetIgeVtqSSt_T7KPAcLFOFPk6CIyklw1MnqxZgglxB2HqgPu5Lht4BBL2OYSrH0Fr4PjPBL1zZPueOFhX_TdHVAhFjbFDsrMWATGLliQS_DlH3uwzf6Slz0Q1tthQGhQZnYoXPq0P-s7pvJq3Z70He0-S_h5"  // Replace with your actual API token
+
     var attempt = 0
 
     suspend fun fetch() {
         try {
-            val result = db.collection("marketApps").get().await()
-            val appList = result.map { document ->
-                document.toObject(AppInfo::class.java)
+            val response: HttpResponse = client.get("http://91.198.220.245:5432/LaoAppsDB") {
+                headers {
+                    append("Authorization", "Bearer $apiToken")
+                }
             }
+            val responseBody: String = response.bodyAsText()
+            Log.d("MarketScreen", "Response: $responseBody")
+            val appList: List<AppInfo> = Json.decodeFromString(responseBody)
             onSuccess(appList)
         } catch (exception: Exception) {
+            Log.e("MarketScreen", "Error fetching data", exception)
             if (attempt < maxRetries) {
                 attempt++
                 val delayTime = (2.0.pow(attempt.toDouble()) * 1000L).toLong()
+                Log.d("MarketScreen", "Retrying in $delayTime ms")
                 delay(delayTime)
                 fetch()
             } else {
@@ -194,29 +204,9 @@ suspend fun fetchAppData(context: Context, onSuccess: (List<AppInfo>) -> Unit, o
 @Composable
 fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Context) {
     var expanded by remember { mutableStateOf(false) }
-    var httpsUrl by remember { mutableStateOf<String?>(null) }
     var isDownloading by remember { mutableStateOf(false) }
     var downloadProgress by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(appInfo.iconUrl) {
-        scope.launch {
-            if (appInfo.iconUrl.startsWith("gs://")) {
-                val storage = FirebaseStorage.getInstance()
-                val storageRef = storage.getReferenceFromUrl(appInfo.iconUrl)
-                try {
-                    val uri = storageRef.downloadUrl.await()
-                    httpsUrl = uri.toString()
-                    Log.d("AppItem", "Converted gs:// URL to: $httpsUrl")
-                } catch (e: Exception) {
-                    Log.e("AppItem", "Failed to get download URL for ${appInfo.iconUrl}", e)
-                }
-            } else {
-                httpsUrl = appInfo.iconUrl
-                Log.d("AppItem", "Using direct URL: $httpsUrl")
-            }
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -226,26 +216,22 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (httpsUrl != null) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(httpsUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(128.dp),
-                contentScale = ContentScale.Fit
-            )
-        } else {
-            Text("Loading icon...", modifier = Modifier.fillMaxWidth())
-        }
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(appInfo.iconUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(128.dp),
+            contentScale = ContentScale.Fit
+        )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = appInfo.name,
             textAlign = TextAlign.Center,
-            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.fillMaxWidth()
         )
         if (isDownloading) {
@@ -274,15 +260,6 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
         ) {
             // Add dropdown items here if needed
         }
-    }
-}
-
-fun convertToDirectDownloadUrl(url: String): String {
-    return if (url.startsWith("https://drive.google.com")) {
-        val fileId = url.substringAfter("/d/").substringBefore("/view")
-        "https://drive.google.com/uc?export=download&id=$fileId"
-    } else {
-        url
     }
 }
 
@@ -316,7 +293,7 @@ fun startDownload(context: Context, url: String, fileName: String): Long {
                 context.startActivity(installIntent)
             }
         }
-    }, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+    }, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
 
     return downloadId
 }
