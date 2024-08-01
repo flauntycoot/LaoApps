@@ -8,10 +8,20 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -21,7 +31,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -34,22 +50,15 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.laoapps.ui.theme.LaoBackG
 import com.example.laoapps.ui.theme.LaoGreen
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.io.File
-import kotlin.math.pow
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.SQLException
 
 @Serializable
 data class AppInfo(
@@ -63,23 +72,17 @@ fun MarketScreen(navController: NavController) {
     val appsState = remember { mutableStateOf<List<AppInfo>>(emptyList()) }
     val errorMessageState = remember { mutableStateOf<String?>(null) }
     val isLoadingState = remember { mutableStateOf(true) }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            fetchAppData(
-                onSuccess = { appList ->
-                    appsState.value = appList
-                    isLoadingState.value = false
-                    Log.d("MarketScreen", "Fetched apps: $appList")
-                },
-                onError = { error ->
-                    errorMessageState.value = error
-                    isLoadingState.value = false
-                    Log.e("MarketScreen", "Error fetching apps: $error")
-                }
-            )
+        withContext(Dispatchers.IO) {
+            try {
+                val apps = fetchAppData()
+                appsState.value = apps
+                isLoadingState.value = false
+            } catch (e: Exception) {
+                errorMessageState.value = "Error fetching data: ${e.message}"
+                isLoadingState.value = false
+            }
         }
     }
 
@@ -87,10 +90,47 @@ fun MarketScreen(navController: NavController) {
         isLoading = isLoadingState.value,
         errorMessage = errorMessageState.value,
         apps = appsState.value,
-        context = context
+        context = LocalContext.current
     )
 }
 
+
+
+
+object DatabaseConfig {
+    private const val URL = "jdbc:postgresql://91.198.220.245:5432/LaoAppsDB/public"
+    private const val USER = "guest"
+    private const val PASSWORD = "O#1\\?N%>*V-\\q6"
+
+    fun connect(): Connection? {
+        return try {
+            DriverManager.getConnection(URL, USER, PASSWORD)
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
+
+fun fetchAppData(): List<AppInfo> {
+    val connection = DatabaseConfig.connect()
+    val apps = mutableListOf<AppInfo>()
+    connection?.use {
+        val statement = it.createStatement()
+        val resultSet = statement.executeQuery("SELECT name, icon_url, download_url FROM apps")
+        while (resultSet.next()) {
+            val name = resultSet.getString("name")
+            val iconUrl = resultSet.getString("icon_url")
+            val downloadUrl = resultSet.getString("download_url")
+            apps.add(AppInfo(name, iconUrl, downloadUrl))
+        }
+    }
+    return apps
+}
+
+
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun MarketScreenContent(isLoading: Boolean, errorMessage: String?, apps: List<AppInfo>, context: Context) {
     Surface(
@@ -127,6 +167,7 @@ fun ErrorMessage(errorMessage: String) {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppList(apps: List<AppInfo>, context: Context) {
     LazyVerticalGrid(
@@ -150,56 +191,6 @@ fun AppList(apps: List<AppInfo>, context: Context) {
     }
 }
 
-suspend fun fetchAppData(onSuccess: (List<AppInfo>) -> Unit, onError: (String) -> Unit, maxRetries: Int = 3) {
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-        }
-        expectSuccess = true
-        engine {
-            requestTimeout = 60000
-            endpoint {
-                connectTimeout = 60000
-                socketTimeout = 60000
-            }
-        }
-    }
-
-    val apiToken = "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6IjFrYnhacFJNQGJSI0tSbE1xS1lqIn0.eyJ1c2VyIjoiamsxMDc3NyIsInR5cGUiOiJhcGlfa2V5IiwicG9ydGFsX3Rva2VuIjoiNjM5MmIwOWQtZGFkZS00NDgwLThhNmEtNTM2ZWM3NzBkMDE2IiwiYXBpX2tleV9pZCI6ImZmZmVhNDEwLTUyOTMtNDQxMS05ODJhLTY1ZDI0ZjMzYjcxMiIsImlhdCI6MTcyMTA0MTMxM30.llRJ85fCtG8GWutn6FYYaHG4hQ7MpT1u5JI4TsbZDR_tsAjDX5XjmpEgr1qcL189NwFh6sYXCEzVII6qymJgVzWE0f8UJqAWsbE2rnHXYZc1qStz6rX4XFfTvCZambVpL1usPXFhAbqBz0AKnag1GbA5FnXpGJJsASQlXsx1kh3-D_F6K9C2DLG_EUFXlsSapdW4aldwQv6R_fNFMtFIipqBhZlR8c-_bSYqyk46sCYbhJO1usIHw978hjlbSBXnrKUlV_m32g56pAiTC_pLwh1qXI_PYj0DI2G68xqfV17PlSQ3I5LIdQTmvmK458Y-OxHvII3eIArWESAxvACv39i-fYltIX84cphfetIgeVtqSSt_T7KPAcLFOFPk6CIyklw1MnqxZgglxB2HqgPu5Lht4BBL2OYSrH0Fr4PjPBL1zZPueOFhX_TdHVAhFjbFDsrMWATGLliQS_DlH3uwzf6Slz0Q1tthQGhQZnYoXPq0P-s7pvJq3Z70He0-S_h5"  // Replace with your actual API token
-
-    var attempt = 0
-
-    suspend fun fetch() {
-        try {
-            val response: HttpResponse = client.get("http://91.198.220.245:5432/LaoAppsDB") {
-                headers {
-                    append("Authorization", "Bearer $apiToken")
-                }
-            }
-            val responseBody: String = response.bodyAsText()
-            Log.d("MarketScreen", "Response: $responseBody")
-            val appList: List<AppInfo> = Json.decodeFromString(responseBody)
-            onSuccess(appList)
-        } catch (exception: Exception) {
-            Log.e("MarketScreen", "Error fetching data", exception)
-            if (attempt < maxRetries) {
-                attempt++
-                val delayTime = (2.0.pow(attempt.toDouble()) * 1000L).toLong()
-                Log.d("MarketScreen", "Retrying in $delayTime ms")
-                delay(delayTime)
-                fetch()
-            } else {
-                onError("Error fetching data after $attempt attempts: ${exception.message}")
-            }
-        }
-    }
-
-    fetch()
-}
 
 @Composable
 fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Context) {
@@ -263,6 +254,7 @@ fun AppItem(appInfo: AppInfo, onDownloadClick: (String) -> Unit, context: Contex
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun startDownload(context: Context, url: String, fileName: String): Long {
     val request = DownloadManager.Request(Uri.parse(url))
         .setTitle("Downloading $fileName")

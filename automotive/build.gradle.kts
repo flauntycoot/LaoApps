@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.annotations)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.volley)
+    implementation(libs.firebase.crashlytics.buildtools)
     debugImplementation(libs.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview.v110)
     implementation(libs.androidx.ui)
@@ -93,9 +94,13 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:2.2.3")
     implementation("io.ktor:ktor-client-content-negotiation:2.2.3")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.3")
-
+    implementation("org.postgresql:postgresql:42.2.10")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
     implementation("io.coil-kt:coil-compose:2.0.0")
+    implementation (libs.postgresql)
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
 
 

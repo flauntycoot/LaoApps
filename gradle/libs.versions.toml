@@ -51,6 +51,7 @@ navigationComposeVersion = "2.4.0-rc01"
 navigationRuntimeKtx = "2.7.7"
 foundationLayoutAndroid = "1.6.7"
 material3Android = "1.2.1"
+postgresql = "42.2.23"
 prdownloader = "0.5.0"
 ui = "1.6.7"
 lifecycleRuntimeKtx = "2.8.0"
@@ -73,6 +74,7 @@ firebaseStorageKtx = "21.0.0"
 googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.0.0"
 firebaseAuthKtx = "23.0.0"
+firebaseCrashlyticsBuildtools = "3.0.2"
 
 [libraries]
 activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
@@ -142,6 +144,7 @@ library = { module = "com.example:library", version.ref = "library" }
 lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycleRuntimeKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Android" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 prdownloader = { module = "com.mindorks.android:prdownloader", version.ref = "prdownloader" }
 ui = { module = "androidx.compose.ui:ui" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
@@ -155,6 +158,7 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
